@@ -84,9 +84,74 @@ exports.getAllReservations = getAllReservations;
 //////////////////////////////////////////////////////////////////////////////////////
 
 const getAllProperties = (options, limit = 10) => {
+
+  const queryParams = [];
+
+  let queryString = `
+  SELECT properties.*, AVG(property_reviews.rating) as average_rating
+  FROM properties
+  JOIN property_reviews ON properties.id = property_id
+  `;
+
+  if (options.city) {
+    queryParams.push(`%${options.city}%`);
+    queryString += `WHERE city LIKE $${queryParams.length} 
+    `;
+  }
+
+  if (options.owner_id) {
+    queryParams.push(`${options.owner_id}`);
+    if (queryParams.indexOf(options.owner_id) === 0) {
+      queryString += `WHERE owner_id LIKE $${queryParams.length}
+      `;
+    } else {
+      queryString += `AND owner_id LIKE $${queryParams.length}
+      `;
+    }
+  }
+
+  if (options.minimum_price_per_night) {
+    let queryInDollars = Number(options.minimum_price_per_night);
+    let queryInCents = queryInDollars * 100;
+    queryParams.push(`${queryInCents}`);
+    if (queryParams.indexOf(options.queryInCents) === 0) {
+      queryString += `WHERE cost_per_night > $${queryParams.length}
+      `;
+    } else {
+      queryString += `AND cost_per_night >= $${queryParams.length}
+      `;
+    }
+  }
+
+  if (options.maximum_price_per_night) {
+    let queryInDollars = Number(options.maximum_price_per_night);
+    let queryInCents = queryInDollars * 100;
+    queryParams.push(`${queryInCents}`);
+    if (queryParams.indexOf(options.queryInCents) === 0) {
+      queryString += `WHERE cost_per_night <= $${queryParams.length}
+      `;
+    } else {
+      queryString += `AND cost_per_night <= $${queryParams.length}
+      `;
+    }
+  }
+
+  queryString += `GROUP BY properties.id
+  `;
+
+  if (options.minimum_rating) {
+    queryParams.push(`${options.minimum_rating}`);
+    queryString += `HAVING AVG(property_reviews.rating) >= $${queryParams.length}
+    `;
+  }
+
+  queryParams.push(limit);
+  queryString += `ORDER BY cost_per_night
+  LIMIT $${queryParams.length};
+  `;
+
   return pool
-    .query(`
-    SELECT * FROM properties LIMIT $1;`, [limit])
+    .query(queryString, queryParams)
     .then((result) => {
       console.log('Getting all properties!');
       return result.rows;
@@ -94,7 +159,7 @@ const getAllProperties = (options, limit = 10) => {
     .catch((err) => {
       console.log(err.message);
     });
-}; // return all properties with limit param, 
+}; // return all properties with limit param and options param (city)
 exports.getAllProperties = getAllProperties;
 
 

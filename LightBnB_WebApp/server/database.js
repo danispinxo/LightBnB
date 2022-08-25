@@ -61,11 +61,6 @@ exports.addUser = addUser;
 ///// RESERVATION FUNCTIONS
 //////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * Get all reservations for a single user.
- * @param {string} guest_id The id of the user.
- * @return {Promise<[{}]>} A promise to the reservations.
- */
 const getAllReservations = function(guest_id, limit = 10) {
   return pool
     .query(`
@@ -81,9 +76,7 @@ const getAllReservations = function(guest_id, limit = 10) {
     .catch((err) => {
       console.log(err.message);
     });
-
-  return getAllProperties(null, 2);
-}
+}; // with guest_id and limit params, return all reserv. for logged-in user
 exports.getAllReservations = getAllReservations;
 
 //////////////////////////////////////////////////////////////////////////////////////

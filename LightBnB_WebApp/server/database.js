@@ -9,15 +9,9 @@ const pool = new Pool({
   database: 'lightbnb'
 });
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
 ///// USER FUNCTIONS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Get a single user from the database given their email.
- * @param {String} email The email of the user.
- * @return {Promise<{}>} A promise to the user.
- */
+//////////////////////////////////////////////////////////////////////////////////////
 
 const getUserWithEmail = function(email) {
   return pool
@@ -30,14 +24,8 @@ const getUserWithEmail = function(email) {
     .catch((err) => {
       console.log(err.message);
     });
-};
+}; // with email param, return user from database with that email for login
 exports.getUserWithEmail = getUserWithEmail;
-
-/**
- * Get a single user from the database given their id.
- * @param {string} id The id of the user.
- * @return {Promise<{}>} A promise to the user.
- */
 
 const getUserWithId = function(id) {
   return pool
@@ -50,15 +38,9 @@ const getUserWithId = function(id) {
     .catch((err) => {
       console.log(err.message);
     });
-}
+}; // with id param, return user from database with that email for staying logged in
 exports.getUserWithId = getUserWithId;
 
-
-/**
- * Add a new user to the database.
- * @param {{name: string, password: string, email: string}} user
- * @return {Promise<{}>} A promise to the user.
- */
 const addUser =  function(user) {
   return pool
   .query(`
@@ -72,10 +54,12 @@ const addUser =  function(user) {
   .catch((err) => {
     console.log(err.message);
   });
-}
+}; // with user info params (from form), add new user to database and return new user
 exports.addUser = addUser;
 
-/// Reservations
+//////////////////////////////////////////////////////////////////////////////////////
+///// RESERVATION FUNCTIONS
+//////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Get all reservations for a single user.
@@ -83,18 +67,28 @@ exports.addUser = addUser;
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function(guest_id, limit = 10) {
+  return pool
+    .query(`
+    SELECT * FROM properties
+    JOIN reservations ON properties.id = reservations.property_id
+    WHERE reservations.guest_id = $1
+    ORDER BY reservations.end_date DESC
+    LIMIT $2;`, [guest_id, limit])
+    .then((result) => {
+      console.log('Getting all reservations!');
+      return result.rows;
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+
   return getAllProperties(null, 2);
 }
 exports.getAllReservations = getAllReservations;
 
-/// Properties
-
-/**
- * Get all properties.
- * @param {{}} options An object containing query options.
- * @param {*} limit The number of results to return.
- * @return {Promise<[{}]>}  A promise to the properties.
- */
+//////////////////////////////////////////////////////////////////////////////////////
+///// PROPERTY FUNCTIONS
+//////////////////////////////////////////////////////////////////////////////////////
 
 const getAllProperties = (options, limit = 10) => {
   return pool
@@ -107,8 +101,7 @@ const getAllProperties = (options, limit = 10) => {
     .catch((err) => {
       console.log(err.message);
     });
-};
-
+}; // return all properties with limit param, 
 exports.getAllProperties = getAllProperties;
 
 

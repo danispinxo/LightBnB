@@ -100,12 +100,13 @@ const getAllProperties = (options, limit = 10) => {
   }
 
   if (options.owner_id) {
-    queryParams.push(`${options.owner_id}`);
-    if (queryParams.indexOf(options.owner_id) === 0) {
-      queryString += `WHERE owner_id LIKE $${queryParams.length}
+    let ownerID = Number(options.owner_id);
+    queryParams.push(`${ownerID}`);
+    if (queryParams.indexOf(ownerID) === 0) {
+      queryString += `WHERE owner_id = $${queryParams.length}
       `;
     } else {
-      queryString += `AND owner_id LIKE $${queryParams.length}
+      queryString += `AND owner_id = $${queryParams.length}
       `;
     }
   }
@@ -150,6 +151,8 @@ const getAllProperties = (options, limit = 10) => {
   LIMIT $${queryParams.length};
   `;
 
+  console.log(queryString, queryParams);
+
   return pool
     .query(queryString, queryParams)
     .then((result) => {
@@ -159,15 +162,9 @@ const getAllProperties = (options, limit = 10) => {
     .catch((err) => {
       console.log(err.message);
     });
-}; // return all properties with limit param and options param (city)
+}; // return all properties with limit param and options params
 exports.getAllProperties = getAllProperties;
 
-
-/**
- * Add a property to the database
- * @param {{}} property An object containing all of the property details.
- * @return {Promise<{}>} A promise to the property.
- */
 const addProperty = function(property) {
   let costPerNightInDollars = property.cost_per_night;
   let costPerNightInCents = costPerNightInDollars * 100;
@@ -186,5 +183,5 @@ const addProperty = function(property) {
   .catch((err) => {
     console.log(err.message);
   });
-}
+}; // adds new property to the database with form params
 exports.addProperty = addProperty;

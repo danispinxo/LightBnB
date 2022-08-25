@@ -16,7 +16,7 @@ const pool = new Pool({
 const getUserWithEmail = function(email) {
   return pool
     .query(
-    'SELECT * FROM users WHERE email = $1;', [email])
+      'SELECT * FROM users WHERE email = $1;', [email])
     .then((result) => {
       console.log('Getting user information!');
       return result.rows[0];
@@ -30,7 +30,7 @@ exports.getUserWithEmail = getUserWithEmail;
 const getUserWithId = function(id) {
   return pool
     .query(
-    'SELECT * FROM users WHERE id = $1;', [id])
+      'SELECT * FROM users WHERE id = $1;', [id])
     .then((result) => {
       console.log('Getting user information!');
       return result.rows[0];
@@ -43,17 +43,17 @@ exports.getUserWithId = getUserWithId;
 
 const addUser =  function(user) {
   return pool
-  .query(`
-  INSERT INTO users (name, email, password)
-  VALUES ($1, $2, $3)
-  RETURNING *;`, [user.name, user.email, user.password])
-  .then((result) => {
-    console.log('Adding new user');
-    return result.rows[0];
-  })
-  .catch((err) => {
-    console.log(err.message);
-  });
+    .query(`
+      INSERT INTO users (name, email, password)
+      VALUES ($1, $2, $3)
+      RETURNING *;`, [user.name, user.email, user.password])
+    .then((result) => {
+      console.log('Adding new user');
+      return result.rows[0];
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
 }; // with user info params (from form), add new user to database and return new user
 exports.addUser = addUser;
 
@@ -64,11 +64,11 @@ exports.addUser = addUser;
 const getAllReservations = function(guest_id, limit = 10) {
   return pool
     .query(`
-    SELECT * FROM properties
-    JOIN reservations ON properties.id = reservations.property_id
-    WHERE reservations.guest_id = $1
-    ORDER BY reservations.end_date DESC
-    LIMIT $2;`, [guest_id, limit])
+      SELECT * FROM properties
+      JOIN reservations ON properties.id = reservations.property_id
+      WHERE reservations.guest_id = $1
+      ORDER BY reservations.end_date DESC
+      LIMIT $2;`, [guest_id, limit])
     .then((result) => {
       console.log('Getting all reservations!');
       return result.rows;
@@ -83,11 +83,11 @@ const addReservation = function(reservation) {
 
   return pool
   .query(`
-  INSERT INTO reservations (start_date, end_date, property_id, guest_id) 
-  VALUES ($1, $2, $3, $4)
-  RETURNING *;
-  `, 
-  [reservation.start_date, reservation.end_date, reservation.property_id, reservation.guest_id])
+    INSERT INTO reservations (start_date, end_date, property_id, guest_id) 
+    VALUES ($1, $2, $3, $4)
+    RETURNING *;
+    `, 
+    [reservation.start_date, reservation.end_date, reservation.property_id, reservation.guest_id])
   .then((result) => {
     console.log('Adding new reservation');
     return result.rows[0];
@@ -95,7 +95,7 @@ const addReservation = function(reservation) {
   .catch((err) => {
     console.log(err.message);
   });
-}; // adds new property to the database with form params
+}; // adds new reservation to the database with form params
 exports.addReservation = addReservation;
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -188,11 +188,11 @@ const addProperty = function(property) {
 
   return pool
   .query(`
-  INSERT INTO properties (owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, parking_spaces, number_of_bathrooms, number_of_bedrooms, country, street, city, province, post_code, active)
-  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, TRUE)
-  RETURNING *;
-  `, 
-  [property.owner_id, property.title, property.description, property.thumbnail_photo_url, property.cover_photo_url, costPerNightInCents, property.parking_spaces, property.number_of_bathrooms, property.number_of_bedrooms, property.country, property.street, property.city, property.province, property.post_code])
+    INSERT INTO properties (owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, parking_spaces, number_of_bathrooms, number_of_bedrooms, country, street, city, province, post_code, active)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, TRUE)
+    RETURNING *;
+    `, 
+    [property.owner_id, property.title, property.description, property.thumbnail_photo_url, property.cover_photo_url, costPerNightInCents, property.parking_spaces, property.number_of_bathrooms, property.number_of_bedrooms, property.country, property.street, property.city, property.province, property.post_code])
   .then((result) => {
     console.log('Adding new property');
     return result.rows[0];

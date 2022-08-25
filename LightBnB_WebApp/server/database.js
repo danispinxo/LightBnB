@@ -79,6 +79,25 @@ const getAllReservations = function(guest_id, limit = 10) {
 }; // with guest_id and limit params, return all reserv. for logged-in user
 exports.getAllReservations = getAllReservations;
 
+const addReservation = function(reservation) {
+
+  return pool
+  .query(`
+  INSERT INTO reservations (start_date, end_date, property_id, guest_id) 
+  VALUES ($1, $2, $3, $4)
+  RETURNING *;
+  `, 
+  [reservation.start_date, reservation.end_date, reservation.property_id, reservation.guest_id])
+  .then((result) => {
+    console.log('Adding new reservation');
+    return result.rows[0];
+  })
+  .catch((err) => {
+    console.log(err.message);
+  });
+}; // adds new property to the database with form params
+exports.addReservation = addReservation;
+
 //////////////////////////////////////////////////////////////////////////////////////
 ///// PROPERTY FUNCTIONS
 //////////////////////////////////////////////////////////////////////////////////////
@@ -150,8 +169,6 @@ const getAllProperties = (options, limit = 10) => {
   queryString += `ORDER BY cost_per_night
   LIMIT $${queryParams.length};
   `;
-
-  console.log(queryString, queryParams);
 
   return pool
     .query(queryString, queryParams)
